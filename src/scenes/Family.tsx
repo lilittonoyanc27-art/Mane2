@@ -158,7 +158,7 @@ export function DuoHub() {
   return <RingHub name="duo" spots={spots} heroes={['mane', 'anulik']} intro={[L('harut', 'Խաղացող 1՝ Մանե (փոքրիկ), Խաղացող 2՝ Անուլիկ (դեռահաս)։ Հարությունի առաջադրանքները՝ միասին։')]} />
 }
 export function MNew() {
-  const ids = ['m_count', 'm_toyshop', 'm_fruit', 'm_balloons', 'm_houses', 'm_hidden', 'm_cleanup', 'loc_fountain', 'loc_ducks']
+  const ids = ['m_sounds', 'm_dots', 'm_teeth', 'm_letters', 'm_feed', 'm_weather', 'm_count', 'm_toyshop', 'm_fruit', 'm_balloons', 'm_houses', 'loc_fountain', 'loc_ducks']
   return <RingHub name="mnew" spots={ids.filter(id => GAMES.byId[id]).map((id, i) => ({ ...gameSpot(id, i, 'mnew'), act: () => playGame({ id, who: 'mane' }, 'mnew') }))} heroes={['mane', 'anulik']} intro={[L('anulik', 'Մանե, սրանք քո նոր խաղերն են։ Ընտրի՛ր։')]} />
 }
 

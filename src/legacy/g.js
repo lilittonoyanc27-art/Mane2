@@ -2,7 +2,7 @@
 /* Мост между перенесёнными мини-играми и оригинальной игрой:
    звуки — оригинальный синтезатор (core/audio), голос — оригинальный механизм озвучки (core/voice),
    звёзды и подарки — оригинальная система (core/store: star). */
-import { sfx as osfx, tone as otone, drum as odrum, xylo, midi } from '../core/audio'
+import { sfx as osfx, tone as otone, drum as odrum, xylo, midi, animal as oanimal } from '../core/audio'
 import { sayText, hush } from '../core/voice'
 import { star, useSave } from '../core/store'
 
@@ -210,6 +210,6 @@ window.G = {
   sfx, note, drum, tone, speak, stopSpeak, toast, modal, confirmBox, confetti, say,
   on, emit, addStars, addCoins, addSouvenir, addPhoto, finish, draggable, hit, flag, isNight, setTime, setWeather, ensureDaily,
   levelFor(game, who) { const s = S.settings.level || 'auto'; if (s !== 'auto') return s; const w = game.who === 'any' ? (who || S.hero) : game.who; return w === 'mane' ? 'easy' : w === 'anulik' ? 'hard' : 'normal' },
-  midi,
+  midi, animal: k => { try { oanimal(k) } catch (e) { } },
 }
 export default window.G

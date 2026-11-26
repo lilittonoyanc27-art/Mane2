@@ -344,7 +344,7 @@ window.ENG = (function () {
       doneBtn.disabled = true;
     }
     COLORS.forEach(c => pal.append(el('button', { class: 'swatch' + (c === color ? ' on' : ''), style: { background: c }, onclick: e => { color = c; pal.querySelectorAll('.swatch').forEach(s => s.classList.remove('on')); e.currentTarget.classList.add('on'); G.sfx('tap'); } })));
-    pal.append(el('button', { class: 'swatch', style: { background: 'conic-gradient(red,orange,yellow,lime,cyan,blue,magenta,red)' }, title: 'Կախարդական գույն', onclick: e => { color = 'rainbow'; pal.querySelectorAll('.swatch').forEach(s => s.classList.remove('on')); e.currentTarget.classList.add('on'); G.sfx('magic'); } }));
+    pal.append(el('button', { class: 'swatch', style: { background: 'conic-gradient(red,orange,yellow,lime,cyan,blue,magenta,red)' }, title: 'Ծիածանի գույն', onclick: e => { color = 'rainbow'; pal.querySelectorAll('.swatch').forEach(s => s.classList.remove('on')); e.currentTarget.classList.add('on'); G.sfx('magic'); } }));
     const doneBtn = el('button', { class: 'btn green small', style: { position: 'absolute', right: '12px', bottom: '130px', zIndex: 22 }, onclick: () => {
       api.done({ stars: fills.every(Boolean) ? 3 : 2, text: 'Ի՜նչ գեղեցիկ նկար է։ Պատից կկախենք։', photo: { title: 'Ներկում՝ ' + COLOR_PICS[picKey].name, kind: 'svg', data: compSvg(COLOR_PICS[picKey].shapes, fills) } }); } }, '✅ Պատրաստ է');
     b.append(picks, wrap, pal, doneBtn);
@@ -428,7 +428,7 @@ window.ENG = (function () {
       px += dx; py += dy; moves++; G.sfx('tap');
       const i = py * W + px; if (gems.has(i)) { gems.delete(i); gemGot++; G.sfx('coin'); counter.textContent = '💎 ' + gemGot + ' / ' + (gems.size + gemGot); }
       draw();
-      if (px === gx && py === gy) { G.sfx('magic'); setTimeout(() => api.done({ stars: gems.size === 0 ? 3 : 2, text: cfg.win || 'Դու անցար կախարդական լաբիրինթոսը։' }), 400); }
+      if (px === gx && py === gy) { G.sfx('magic'); setTimeout(() => api.done({ stars: gems.size === 0 ? 3 : 2, text: cfg.win || 'Դու անցար լաբիրինթոսը։' }), 400); }
     }
     keys(api, e => { const m = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] }[e.key]; if (m) { e.preventDefault(); move(...m); } });
     let sx, sy; grid.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; });

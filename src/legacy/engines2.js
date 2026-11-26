@@ -259,7 +259,7 @@
     const area = el('div', { style: { position: 'absolute', inset: '64px 8px 70px', display: 'grid', placeItems: 'center' } });
     b.append(tabs, area);
     const solved = new Set();
-    const games = { lights: '💡 Լապտերիկներ', sudoku: '🧩 Սուդոկու', bridges: '🔢 Կախարդական քառակուսի' };
+    const games = { lights: '💡 Լապտերիկներ', sudoku: '🧩 Սուդոկու', bridges: '🔢 Թվային քառակուսի' };
     for (const k in games) tabs.append(el('button', { class: 'tab', onclick: e => { tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('on')); e.currentTarget.classList.add('on'); start(k); } }, games[k]));
     function win(k) { if (solved.has(k)) return; solved.add(k); G.sfx('win'); G.confetti(30); G.toast('Լուծված է։ (' + solved.size + '/3)'); if (solved.size >= (api.level === 'easy' ? 1 : 2)) setTimeout(() => api.done({ stars: solved.size === 3 ? 3 : 2, text: 'Գլուխկոտրուկները լուծված են։ Սուր միտք։' }), 700); }
     function start(k) {

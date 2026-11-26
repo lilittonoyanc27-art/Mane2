@@ -6,7 +6,7 @@ root = pathlib.Path(__file__).resolve().parent.parent
 ARM = re.compile('[Ա-֏]')
 STR = re.compile(r"'((?:[^'\\\n]|\\.)*)'|`((?:[^`\\]|\\.)*)`")
 WHO = re.compile(r"(?:who:\s*'|L\(')(mane|anulik|harut)'")
-FILES = ['src/legacy/data.js', 'src/legacy/engines.js', 'src/legacy/engines2.js', 'src/legacy/engines3.js', 'src/legacy/places.js', 'src/legacy/advdata.js', 'src/legacy/g.js', 'src/legacy/phone.js', 'src/scenes/Family.tsx', 'src/scenes/City.tsx']
+FILES = ['src/legacy/data.js', 'src/legacy/engines.js', 'src/legacy/engines2.js', 'src/legacy/engines3.js', 'src/legacy/engines4.js', 'src/legacy/places.js', 'src/legacy/advdata.js', 'src/legacy/g.js', 'src/legacy/phone.js', 'src/scenes/Family.tsx', 'src/scenes/City.tsx']
 orig = set(json.load(open(root / 'src/core/phrases.json', encoding='utf8')).values())
 MANUAL = {
   'h_hi_title': ('harut', 'Բարև՛ ձեզ, աղջիկնե՛ր։ Հարություն քեռին պատրաստ է արկածների։'),
