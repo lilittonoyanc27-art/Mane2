@@ -53,9 +53,11 @@ function Face({ mood, skin = '#ffd9c2', iris = '#5b3a2c' }: { mood: Mood; skin?:
   </group>
 }
 
-export interface PersonProps { p?: V3; r?: V3; s?: number; mood?: Mood; outfit?: Partial<Outfit>; skin?: string; wings?: boolean; kind?: 'girl' | 'man' | 'lady' | 'boy'; hold?: ReactNode; facing?: number }
+export interface PersonProps { p?: V3; r?: V3; s?: number; mood?: Mood; outfit?: Partial<Outfit>; skin?: string; wings?: boolean; kind?: 'girl' | 'man' | 'lady' | 'boy' | 'teen'; hold?: ReactNode; facing?: number; look?: number }
+/** Образы Анулик (15 лет): худи/футболка + джинсы/брюки */
+export const TEEN: { top: string; leg: string; n: string }[] = [{ top: '#b79bff', leg: '#6d8fd8', n: '💜' }, { top: '#6fd6c4', leg: '#4a4f72', n: '🌿' }, { top: '#ffb0c8', leg: '#efe2cc', n: '🌸' }, { top: '#ffe08a', leg: '#6d8fd8', n: '☀️' }, { top: '#3a3550', leg: '#2a2638', n: '🌙' }]
 export const NOFIT: Outfit = { dress: 0, shoes: 0, hair: 0, hairColor: 0, hat: 0, bow: 1, jewel: 0 }
-export function Person({ p, r, s = 1, mood = 'idle', outfit, skin = '#ffd9c2', wings, kind = 'girl', hold }: PersonProps) {
+export function Person({ p, r, s = 1, mood = 'idle', outfit, skin = '#ffd9c2', wings, kind = 'girl', hold, look = 0 }: PersonProps) {
   const o = { ...NOFIT, ...outfit }, d = DRESS[o.dress % DRESS.length]
   const body = useRef<THREE.Group>(null!), la = useRef<THREE.Group>(null!), ra = useRef<THREE.Group>(null!), ll = useRef<THREE.Group>(null!), rl = useRef<THREE.Group>(null!), head = useRef<THREE.Group>(null!), w = useRef<THREE.Group>(null), t0 = useMemo(() => Math.random() * 5, [])
   useFrame((st, dt) => {
@@ -78,12 +80,13 @@ export function Person({ p, r, s = 1, mood = 'idle', outfit, skin = '#ffd9c2', w
     head.current.rotation.z += (hz - head.current.rotation.z) * k
     if (w.current) w.current.children.forEach((c, i) => { c.rotation.y = (i ? -1 : 1) * (0.5 + Math.sin(t * 9) * 0.4) })
   })
-  const man = kind === 'man', boy = kind === 'boy', sh = SHOES[o.shoes % SHOES.length], hc = HAIRC[o.hairColor % HAIRC.length]
-  const top = man ? '#6fa8e8' : boy ? '#8fdc9a' : d.c
+  const man = kind === 'man', boy = kind === 'boy', teen = kind === 'teen', tl = TEEN[look % TEEN.length], sh = teen ? '#ffffff' : SHOES[o.shoes % SHOES.length], hc = HAIRC[o.hairColor % HAIRC.length]
+  const top = man ? '#6fa8e8' : boy ? '#8fdc9a' : teen ? tl.top : d.c, pants = teen ? tl.leg : '#5d6fae'
   return <group position={p} rotation={r} scale={s}>
     <group ref={body}>
-      {[ll, rl].map((ref, i) => <group key={i} ref={ref} position={[(i ? 0.14 : -0.14), 0.46, 0]}><Cap a={[0.085, 0.24]} p={[0, -0.2, 0]} c={man || boy ? '#5d6fae' : skin} /><S p={[0, -0.38, 0.06]} s={[0.12, 0.09, 0.18]} c={sh} /></group>)}
-      {man || boy ? <><Cap a={[0.27, 0.3]} p={[0, 0.78, 0]} c={top} /><B a={[0.5, 0.2, 0.42]} p={[0, 0.5, 0]} c="#5d6fae" rad={0.1} />{man && <Bow c="#ff7fae" s={0.5} p={[0, 1.02, 0.26]} />}</>
+      {[ll, rl].map((ref, i) => <group key={i} ref={ref} position={[(i ? 0.14 : -0.14), 0.46, 0]}><Cap a={[0.085, teen ? 0.3 : 0.24]} p={[0, teen ? -0.23 : -0.2, 0]} c={man || boy || teen ? pants : skin} /><S p={[0, -0.38, 0.06]} s={[0.12, 0.09, 0.18]} c={sh} /></group>)}
+      {man || boy || teen ? <><Cap a={[teen ? 0.25 : 0.27, 0.3]} p={[0, 0.78, 0]} c={top} /><B a={[0.5, 0.2, 0.42]} p={[0, 0.5, 0]} c={pants} rad={0.1} />{man && <Bow c="#ff7fae" s={0.5} p={[0, 1.02, 0.26]} />}
+          {teen && <><Heart3 p={[0, 0.82, 0.27]} s={0.07} c="#ffffff" ns /><B a={[0.22, 0.15, 0.1]} p={[0.11, 0.66, 0.29]} r={[0, 0, 0.12]} c="#4a4560" rad={0.03} /><C a={[0.05, 0.05, 0.06]} p={[0.11, 0.66, 0.36]} r={[Math.PI / 2, 0, 0]} c="#9fd0ff" o={{ rough: 0.1, metal: 0.4 }} /><T a={[0.22, 0.012]} p={[0, 0.9, 0.02]} r={[0.35, 0, 0]} c="#3a3550" ns /></>}</>
         : <>
           <C a={[0.2, 0.46, 0.55]} p={[0, 0.63, 0]} c={d.c} /><T a={[0.45, 0.055]} p={[0, 0.37, 0]} r={[Math.PI / 2, 0, 0]} c={d.c2} />
           <S p={[0, 0.92, 0]} s={[0.23, 0.2, 0.2]} c={d.c} /><T a={[0.2, 0.035]} p={[0, 0.84, 0]} r={[Math.PI / 2, 0, 0]} c={d.c2} />
@@ -94,7 +97,7 @@ export function Person({ p, r, s = 1, mood = 'idle', outfit, skin = '#ffd9c2', w
       <group ref={ra} position={[0.22, 0.98, 0]}><S s={0.11} c={top} /><Cap a={[0.07, 0.28]} p={[0, -0.2, 0]} c={skin} /><S p={[0, -0.4, 0]} s={0.085} c={skin} />{hold && <group position={[0, -0.5, 0.1]}>{hold}</group>}</group>
       {o.jewel === 1 && Array.from({ length: 9 }, (_, i) => <S key={i} p={[Math.sin(-0.9 + i * 0.22) * 0.2, 1.0 - Math.cos(-0.9 + i * 0.22) * 0.06, Math.cos(-0.9 + i * 0.22) * 0.22]} s={0.035} c="#fff" o={{ rough: 0.1, metal: 0.3 }} />)}
       {o.jewel === 2 && <Heart3 p={[0, 0.95, 0.24]} s={0.07} c="#ff5a9c" o={{ em: 0.4 }} />}
-      <group ref={head} position={[0, 1.06, 0]}><group position={[0, 0.46, 0]}>
+      <group ref={head} position={[0, 1.06, 0]} scale={teen ? 0.86 : 1}><group position={[0, 0.46, 0]}>
         <Face mood={mood} skin={skin} />
         {man || boy ? <><Dome p={[0, 0.1, -0.05]} s={[0.54, 0.47, 0.54]} r={[-0.35, 0, 0]} c={man ? '#3c2c26' : '#8a4f2a'} /><S p={[0, 0.4, 0.28]} s={[0.36, 0.13, 0.18]} c={man ? '#3c2c26' : '#8a4f2a'} />{[-0.52, 0.52].map(x => <S key={x} p={[x, -0.03, 0]} s={0.09} c={skin} />)}
           {man && <>{[-0.19, 0.19].map(x => <S key={x} p={[x, 0.17, 0.46]} s={[0.1, 0.022, 0.03]} c="#3c2c26" ns />)}{[-0.08, 0.08].map(x => <S key={x} p={[x, -0.115, 0.505]} s={[0.09, 0.03, 0.03]} r={[0, 0, x * -3]} c="#3c2c26" ns />)}</>}</>
@@ -107,6 +110,8 @@ export function Person({ p, r, s = 1, mood = 'idle', outfit, skin = '#ffd9c2', w
     </group>
   </group>
 }
+/** Анулик — старшая сестра Мане, 15 лет (та же стилистика, взрослее пропорции) */
+export const Anulik = (q: PersonProps) => <Person kind="teen" {...q} s={(q.s ?? 1) * 1.16} outfit={{ hair: 1, hairColor: 0, bow: 0, hat: 0, shoes: 4, jewel: 2 }} />
 export const Uncle = (q: PersonProps) => <Person kind="man" {...q} s={(q.s ?? 1) * 1.18} outfit={{ shoes: 1, jewel: 0, bow: 0 }} />
 export const Fairy = (q: PersonProps) => <Person wings outfit={{ dress: 9, hair: 1, hairColor: 2, hat: 5, bow: 0, shoes: 2 }} {...q} />
 export const Princess = (q: PersonProps) => <Person outfit={{ dress: 6, hair: 1, hairColor: 3, hat: 1, bow: 0, shoes: 2, jewel: 1 }} {...q} />

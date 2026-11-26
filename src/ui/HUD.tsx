@@ -1,10 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useUI, go } from '../core/ui'
 import { useSave } from '../core/store'
-import { repeat, say } from '../core/voice'
+import { repeat, say, speakerOf } from '../core/voice'
 import { sfx } from '../core/audio'
 import { COLLECT } from '../core/rewards'
 import { shower } from '../kit/base'
+import { homeTarget, HUBS } from '../core/family'
 
 export function HUD() {
   const { scene, line, lineId, taskId } = useUI()
@@ -13,15 +14,15 @@ export function HUD() {
   const title = scene === 'title'
   return <>
     <div className="hud">
-      {!title && <button className="rb home" aria-label="Գլխավոր էջ" onClick={() => { sfx('tap'); go(scene === 'hub' ? 'title' : 'hub') }}>🏠</button>}
+      {!title && <button className="rb home" aria-label="Գլխավոր էջ" onClick={() => { sfx('tap'); go(homeTarget(scene)) }}>🏠</button>}
       {taskId && <button className="rb replay" aria-label="Նորից լսել" onClick={() => { sfx('tap'); repeat() }}>🔊</button>}
       <div className="sp" />
       {!title && <button className="stars" aria-label="Աստղեր" onClick={() => { sfx('tap'); go('room') }}><b key={stars}>⭐</b>{stars}</button>}
       <button className="rb" aria-label="Երաժշտություն" onClick={() => set({ muted: !muted })}>{muted ? '🔇' : '🎵'}</button>
-      {(title || scene === 'hub') && <button className="rb" aria-label="Ծնողներին" onClick={() => go('parents')}>⚙️</button>}
+      {(title || scene === 'who' || HUBS.includes(scene)) && <button className="rb" aria-label="Ծնողներին" onClick={() => go('parents')}>⚙️</button>}
     </div>
     {['kitchen', 'pets', 'market', 'prank', 'music', 'birthday', 'room', 'puzzles', 'draw'].includes(scene) && <div className="rot" key={'r' + scene}><i>📱</i></div>}
-    {line && <div className="bubble" key={lineId}><span>👧🏻</span><p>{line}</p></div>}
+    {line && <div className="bubble" key={lineId}><span>{({ mane: '👧🏻', anulik: '👩🏻', harut: '👨🏻' } as Record<string, string>)[speakerOf(lineId)]}</span><p>{line}</p></div>}
   </>
 }
 

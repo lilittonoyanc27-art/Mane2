@@ -5,8 +5,8 @@ import { music, unlockAudio, type Mood } from './core/audio'
 import { hush } from './core/voice'
 import { HUD, RewardPop } from './ui/HUD'
 
-type Mod = Record<string, React.ComponentType>
-const L = (f: () => Promise<Mod>, n: string) => lazy(() => f().then(m => ({ default: m[n] })))
+type Mod = Record<string, any> // eslint-disable-line
+const L = (f: () => Promise<Mod>, n: string) => lazy(() => f().then(m => ({ default: m[n] as React.ComponentType })))
 export const SCENES: Record<string, { C: React.ComponentType; m: Mood }> = {
   title: { C: L(() => import('./scenes/Home'), 'Title'), m: 'menu' },
   hub: { C: L(() => import('./scenes/Home'), 'Hub'), m: 'menu' },
@@ -27,6 +27,19 @@ export const SCENES: Record<string, { C: React.ComponentType; m: Mood }> = {
   room: { C: L(() => import('./scenes/Room'), 'MyRoom'), m: 'calm' },
   card: { C: L(() => import('./scenes/Card'), 'Card'), m: 'menu' },
   parents: { C: L(() => import('./ui/Parents'), 'Parents'), m: 'none' },
+  // --- продолжение: Анулик, Харутюн, семья, вдвоём ---
+  who: { C: L(() => import('./scenes/Family'), 'Who'), m: 'menu' },
+  ahub: { C: L(() => import('./scenes/Family'), 'AHub'), m: 'menu' },
+  hhub: { C: L(() => import('./scenes/Family'), 'HHub'), m: 'menu' },
+  fhub: { C: L(() => import('./scenes/Family'), 'FHub'), m: 'menu' },
+  shub: { C: L(() => import('./scenes/Family'), 'SHub'), m: 'menu' },
+  duo: { C: L(() => import('./scenes/Family'), 'DuoHub'), m: 'party' },
+  mnew: { C: L(() => import('./scenes/Family'), 'MNew'), m: 'menu' },
+  game: { C: L(() => import('./scenes/Family'), 'Game'), m: 'calm' },
+  story: { C: L(() => import('./scenes/Family'), 'Story'), m: 'happy' },
+  tales: { C: L(() => import('./scenes/Family'), 'Tales'), m: 'calm' },
+  phone: { C: L(() => import('./scenes/Family'), 'PhoneScene'), m: 'calm' },
+  city: { C: L(() => import('./scenes/City'), 'City'), m: 'happy' },
   rest: { C: L(() => import('./ui/Parents'), 'Rest'), m: 'calm' },
 }
 

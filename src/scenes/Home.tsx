@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Stage, Tap, Float, Orbit, Sign, burst, Star3, S, C, K, B, T, useLater, Disc, Heart3, type V3 } from '../kit/base'
 import { Castle, Clouds, Butterflies, Meadow, Island, Flower, Tree, Rainbow, Mushroom, House, Cloud, Pine } from '../kit/nature'
-import { Person, Fairy, Uncle, Bow } from '../kit/people'
+import { Person, Fairy, Uncle, Bow, Anulik } from '../kit/people'
+import { useFam } from '../core/family'
 import { Animal } from '../kit/animals'
 import { Item } from '../kit/items'
 import { say, task, text, type Phrase } from '../core/voice'
@@ -24,7 +25,9 @@ export function Title() {
       <Castle p={[0, 0, -3]} s={1.5} /><Tree p={[-4.6, 0, -2]} s={1.2} /><Tree p={[4.8, 0, -2.4]} s={1.3} c="#ffb9dc" /><Pine p={[-6, 0, 0.5]} /><Tree p={[6, 0, 0.4]} c="#c5b0ff" /><Mushroom p={[-3.2, 0, 1.6]} /><Mushroom p={[3.4, 0, 1.4]} c="#b79bff" s={0.8} />
       {[[-2.6, 2.6], [2.5, 2.7], [-4, 2.2], [4.2, 2.1], [-1.2, 3.3], [1.6, 3.4]].map(([x, z], i) => <Tap key={i} p={[x, 0, z]} on={() => sfx('magic')} fx="heart"><Flower s={1.2} c={['#ff8fc5', '#ffd257', '#b79bff', '#ff7a8a', '#8fd3ff', '#ffb07a'][i]} /></Tap>)}
       <Tap p={[0, 0, 1]} on={() => { setM('happy'); later(() => setM('wave'), 1800); hello(); burst([0, 2, 1.4], 'heart', 16) }}><Person s={1.35} mood={m} outfit={outfit} /></Tap>
-      <Tap p={[-1.9, 0, 1.2]} on={() => sfx('squeak')}><Animal k="cat" s={0.85} r={[0, 0.4, 0]} /></Tap><Tap p={[1.9, 0, 1.2]} on={() => sfx('giggle')}><Animal k="rabbit" s={0.85} r={[0, -0.4, 0]} /></Tap>
+      <Tap p={[-3.4, 0, 1.4]} on={() => sfx('squeak')}><Animal k="cat" s={0.85} r={[0, 0.4, 0]} /></Tap><Tap p={[3.4, 0, 1.4]} on={() => sfx('giggle')}><Animal k="rabbit" s={0.85} r={[0, -0.4, 0]} /></Tap>
+      <Tap p={[-1.75, 0, 0.7]} on={() => { void say('h_hi_title' as Phrase) }}><Uncle s={1.5} r={[0, 0.35, 0]} mood="wave" /></Tap>
+      <Tap p={[1.75, 0, 0.7]} on={() => { void say('a_hi_title' as Phrase) }}><Anulik s={1.38} r={[0, -0.35, 0]} mood="idle" look={useFam.getState().look} /></Tap>
       <Float p={[-2.6, 2.6, 0.4]}><Fairy s={0.6} mood="fly" /></Float>
       <Butterflies n={7} c={[0, 1.6, 0.5]} rad={4.5} />
       {[0, 1, 2, 3].map(i => <Orbit key={i} rad={5} c={[0, 5, -3]} sp={0.2} ph={i * 1.57}><Star3 s={0.2} c="#ffe27a" o={{ em: 0.8 }} /></Orbit>)}
@@ -32,7 +35,7 @@ export function Title() {
     <div className="title"><h1>Մանեի աշխարհը</h1><br /><h2>Волшебный мир Мане</h2></div>
     <div className="acts">
       <button className="uncle" aria-label="Հարություն" onClick={() => { sfx('magic'); go('card') }}>{photo ? <img src={photo} alt="" /> : '🎁'}</button>
-      <Big c="#ff7fbf" label="Խաղալ" on={() => { unlockAudio(); go('hub') }}><span className="play">{'▶\uFE0E'}</span></Big>
+      <Big c="#ff7fbf" label="Խաղալ" on={() => { unlockAudio(); go('who') }}><span className="play">{'▶\uFE0E'}</span></Big>
       <button className="uncle" style={{ background: 'radial-gradient(circle at 34% 20%,#fff,#ffd257 70%)', boxShadow: '0 7px 0 #d9a032,0 14px 24px #8a6a1f44' }} aria-label="Մանեի սենյակը" onClick={() => { sfx('magic'); go('room') }}>👑</button>
     </div>
   </>
@@ -55,6 +58,12 @@ const PLACES: { id: string; icon: () => React.ReactNode; c: string }[] = [
   { id: 'sea', c: '#a8e6f0', icon: () => <><S s={[1.4, 0.2, 1]} c="#5fc8e8" /><Animal k="fish" p={[0, 0.5, 0]} r={[0, 1.2, 0]} s={1.3} /><Item k="shell" p={[-1, 0.1, 0.5]} s={0.7} /><Item k="starfish" p={[1, 0.1, 0.5]} s={0.7} /></> },
   { id: 'room', c: '#ffdfe8', icon: () => <><B a={[1.7, 0.4, 1.2]} p={[0, 0.3, 0]} c="#b79bff" rad={0.15} /><Item k="pillow" p={[-0.5, 0.4, 0]} s={0.7} c="#fff" /><B a={[0.15, 1.2, 1.2]} p={[-0.9, 0.6, 0]} c="#ff9ecb" rad={0.07} /><Item k="crown" p={[0.4, 0.55, 0]} s={0.7} /></> },
   { id: 'card', c: '#e6d3ff', icon: () => <><Uncle s={0.85} mood="wave" p={[0.3, 0, 0]} /><Item k="gift" p={[-0.8, 0, 0.5]} s={0.8} c="#ff7fae" /></> },
+  // --- продолжение ---
+  { id: 'shub', c: '#ffd3ec', icon: () => <><Anulik s={0.75} p={[0.45, 0, 0]} /><Person s={0.62} p={[-0.45, 0, 0.3]} /></> },
+  { id: 'fhub', c: '#c9f0b0', icon: () => <><Uncle s={0.6} p={[-0.75, 0, 0]} /><Person s={0.5} p={[0, 0, 0.3]} /><Anulik s={0.55} p={[0.75, 0, 0]} /></> },
+  { id: 'city', c: '#cfe6ff', icon: () => <><House s={0.6} p={[-0.6, 0, -0.3]} c="#e6dcff" roof="#b79bff" /><House s={0.75} p={[0.55, 0, -0.4]} /><Item k="car" s={0.9} p={[0, 0, 0.7]} r={[0, -0.6, 0]} /></> },
+  { id: 'mnew', c: '#fff0b8', icon: () => <><Item k="balloon" p={[-0.8, 0.6, 0]} /><Item k="teddy" s={1.1} /><Item k="balloon" c="#7fc4ff" p={[0.85, 0.8, 0]} /></> },
+  { id: 'tales', c: '#ffe0c0', icon: () => <><Uncle s={0.75} mood="wave" p={[0.4, 0, 0]} /><B a={[0.8, 0.12, 0.6]} p={[-0.6, 0.5, 0.4]} r={[0.4, 0.3, 0]} c="#ff8fc5" /></> },
 ]
 const R = 11, STEP = Math.PI * 2 / PLACES.length
 function Ring({ target, onPick }: { target: React.MutableRefObject<number>; onPick: (i: number) => void }) {
@@ -83,7 +92,7 @@ export function Hub() {
     const n = PLACES.length, cur = ((idx.current % n) + n) % n; let df = i - cur; if (df > n / 2) df -= n; if (df < -n / 2) df += n
     idx.current += df; target.current = -idx.current * STEP; name()
     setWalk(df ? 'walk' : 'happy'); later(() => { setWalk('happy'); burst([0, 1.6, R + 2.4], 'star', 22) }, df ? 600 : 0)
-    void say(('s_' + PLACES[i].id) as Phrase); later(() => { go(PLACES[i].id) }, 1300)
+    void say(('s_' + PLACES[i].id) as Phrase); later(() => { useFam.getState().set({ ret: 'hub', adv: null }); go(PLACES[i].id) }, 1300)
   }
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.code === 'ArrowRight') turn(1); if (e.code === 'ArrowLeft') turn(-1); if (e.code === 'Enter' || e.code === 'Space') pickP(((idx.current % PLACES.length) + PLACES.length) % PLACES.length) }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k) }, [])
   return <div style={{ position: 'absolute', inset: 0 }}
