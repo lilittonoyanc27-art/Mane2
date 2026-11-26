@@ -473,6 +473,10 @@ window.ENG = (function () {
       s = `<rect width="300" height="300" fill="${P.bg || '#fdf2ff'}"/><path d="M40 40 Q150 300 260 40" stroke="#c9a24a" stroke-width="3" fill="none"/>`;
       const n = 13; L.forEach((c, i) => { const t = (i + 1) / (n + 1); const x = (1 - t) * (1 - t) * 40 + 2 * (1 - t) * t * 150 + t * t * 260, y = (1 - t) * (1 - t) * 40 + 2 * (1 - t) * t * 300 + t * t * 40;
         s += `<circle cx="${x}" cy="${y}" r="11" fill="${c}" stroke="#fff" stroke-width="2"/><circle cx="${x - 3}" cy="${y - 4}" r="3" fill="#fff" opacity=".6"/>`; });
+    } else if (scene === 'snowman') {
+      s = `<rect width="300" height="300" fill="${P.bg || '#cfe6ff'}"/><path d="M0 240 Q150 215 300 240 L300 300 L0 300Z" fill="#ffffff"/>`;
+      L.forEach((c, i) => { const r = [62, 46, 34][i] || 30, y = [205, 125, 64][i] || 40; s += `<circle cx="150" cy="${y}" r="${r}" fill="${c}" stroke="#d9e8f7" stroke-width="3"/><circle cx="${150 - r * .35}" cy="${y - r * .35}" r="${r * .22}" fill="#fff" opacity=".7"/>`; });
+      if (!L.length) s += `<circle cx="150" cy="205" r="62" fill="none" stroke="#9fc6e6" stroke-width="3" stroke-dasharray="8 6"/>`;
     } else if (scene === 'garden') {
       s = `<rect width="300" height="300" fill="#dff1ff"/><rect y="170" width="300" height="130" fill="#a9ea93"/><path d="M0 170 Q150 150 300 170" fill="#bff3a8"/>`;
     }

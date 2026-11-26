@@ -4,7 +4,10 @@ import * as THREE from 'three'
 import { Stage, Tap, Float, Orbit, Sign, burst, Star3, S, C, K, B, T, useLater, Disc, Heart3, type V3 } from '../kit/base'
 import { Castle, Clouds, Butterflies, Meadow, Island, Flower, Tree, Rainbow, Mushroom, House, Cloud, Pine } from '../kit/nature'
 import { Person, Fairy, Uncle, Bow, Anulik } from '../kit/people'
-import { useFam } from '../core/family'
+import { useFam, playGame } from '../core/family'
+import { GAMES } from '../legacy'
+import { sayText } from '../core/voice'
+import { Emoji, Star3 as Star3b } from '../kit/base'
 import { Animal } from '../kit/animals'
 import { Item } from '../kit/items'
 import { say, task, text, type Phrase } from '../core/voice'
@@ -41,7 +44,20 @@ export function Title() {
   </>
 }
 
-const PLACES: { id: string; icon: () => React.ReactNode; c: string }[] = [
+// Новые игры Мане — в начале карусели (запускаются поверх 3D-сцены)
+const NEWG: { id: string; c: string; icon: () => React.ReactNode }[] = [
+  { id: 'm_peek', c: '#c9f0b0', icon: () => <><Tree s={0.55} p={[-0.6, 0, -0.3]} /><Animal k="rabbit" s={0.8} p={[0.45, 0, 0.3]} mood="happy" /></> },
+  { id: 'm_sounds', c: '#d9f0ff', icon: () => <><Animal k="cow" s={0.85} p={[-0.45, 0, 0]} /><Animal k="duck" s={0.75} p={[0.7, 0, 0.4]} /><Emoji e="🎵" p={[0.3, 1.9, 0]} s={0.8} /></> },
+  { id: 'm_colorpop', c: '#ffe0f0', icon: () => <><Item k="balloon" p={[-0.8, 0.5, 0]} /><Item k="balloon" c="#ffd257" p={[0, 0.9, 0.2]} /><Item k="balloon" c="#7fc4ff" p={[0.8, 0.6, 0]} /></> },
+  { id: 'm_snowman', c: '#e6f2ff', icon: () => <><S s={0.55} p={[0, 0.5, 0]} c="#fff" /><S s={0.4} p={[0, 1.25, 0]} c="#fff" /><S s={0.3} p={[0, 1.8, 0]} c="#fff" /><K a={[0.07, 0.35]} p={[0, 1.8, 0.4]} r={[Math.PI / 2, 0, 0]} c="#ff9a3c" /><C a={[0.25, 0.25, 0.3]} p={[0, 2.2, 0]} c="#3a3550" /></> },
+  { id: 'm_dots', c: '#e3d3ff', icon: () => <><Star3b s={0.9} p={[0, 1.1, 0]} c="#ffd257" o={{ em: 0.4 }} />{[-1, -0.5, 0, 0.5, 1].map((x, i) => <S key={i} s={0.1} p={[x, 0.3, 0.6]} c="#fff" />)}</> },
+  { id: 'm_teeth', c: '#ffe6e6', icon: () => <><Emoji e="🦷" p={[-0.5, 1.1, 0]} s={1.3} /><Animal k="frog" s={0.7} p={[0.75, 0, 0.3]} mood="happy" /></> },
+  { id: 'm_letters', c: '#fff0b8', icon: () => <>{['Ա', 'Բ', 'Գ'].map((l, i) => <group key={l} position={[(i - 1) * 0.85, 0.45 + (i === 1 ? 0.3 : 0), 0]}><B a={[0.75, 0.75, 0.75]} c={['#ff8fc5', '#7fc4ff', '#8fdc9a'][i]} /><Emoji e={l} p={[0, 0, 0.39]} s={0.6} /></group>)}</> },
+  { id: 'm_feed', c: '#d9f7c8', icon: () => <><Animal k="rabbit" s={0.75} p={[-0.5, 0, 0]} /><Item k="carrot" s={0.8} p={[0.6, 0, 0.4]} /></> },
+  { id: 'm_weather', c: '#dff1ff', icon: () => <><Item k="umbrella" s={1.1} p={[-0.4, 0, 0]} /><Item k="sun" s={0.7} p={[0.8, 1.2, 0]} /></> },
+]
+const PLACES: { id: string; icon: () => React.ReactNode; c: string; game?: boolean }[] = [
+  ...NEWG.map(g => ({ ...g, game: true })),
   { id: 'adventure', c: '#a8e6b0', icon: () => <><Castle s={0.6} /><Pine p={[-1.2, 0, 0.5]} s={0.5} /><Pine p={[1.2, 0, 0.5]} s={0.5} /></> },
   { id: 'kitchen', c: '#ffd9a8', icon: () => <><Item k="cake" s={1.6} /><Item k="strawberry" p={[-1, 0, 0.4]} s={0.6} /><Item k="icecream" p={[1.05, 0.1, 0.3]} s={0.8} /></> },
   { id: 'pets', c: '#ffe6b8', icon: () => <><House s={0.75} p={[0, 0, -0.6]} /><Animal k="cat" p={[-0.6, 0, 0.6]} s={0.65} /><Animal k="dog" p={[0.65, 0, 0.6]} s={0.65} /></> },
@@ -65,7 +81,7 @@ const PLACES: { id: string; icon: () => React.ReactNode; c: string }[] = [
   { id: 'mnew', c: '#fff0b8', icon: () => <><Item k="balloon" p={[-0.8, 0.6, 0]} /><Item k="teddy" s={1.1} /><Item k="balloon" c="#7fc4ff" p={[0.85, 0.8, 0]} /></> },
   { id: 'tales', c: '#ffe0c0', icon: () => <><Uncle s={0.75} mood="wave" p={[0.4, 0, 0]} /><B a={[0.8, 0.12, 0.6]} p={[-0.6, 0.5, 0.4]} r={[0.4, 0.3, 0]} c="#ff8fc5" /></> },
 ]
-const R = 11, STEP = Math.PI * 2 / PLACES.length
+const R = Math.max(11, PLACES.length * 3.7 / (Math.PI * 2)), STEP = Math.PI * 2 / PLACES.length
 function Ring({ target, onPick }: { target: React.MutableRefObject<number>; onPick: (i: number) => void }) {
   const ref = useRef<THREE.Group>(null!), gs = useRef<(THREE.Group | null)[]>([])
   useFrame((_, d) => {
@@ -76,7 +92,7 @@ function Ring({ target, onPick }: { target: React.MutableRefObject<number>; onPi
     <Tap on={() => onPick(i)} hit={1.5} hitP={[0, 1, 0]}>
       <C a={[1.75, 1.6, 0.45]} p={[0, 0.22, 0]} c={q.c} /><T a={[1.72, 0.08]} p={[0, 0.45, 0]} r={[Math.PI / 2, 0, 0]} c="#fff" />
       <Float p={[0, 0.5, 0]} a={0.07} rot={0.02}>{q.icon()}</Float>
-      <Sign t={text(('s_' + q.id) as Phrase)} p={[0, 0.3, 1.95]} w={2.7} h={0.46} r={[-0.25, 0, 0]} />
+      <Sign t={q.game ? GAMES.byId[q.id].title : text(('s_' + q.id) as Phrase)} p={[0, 0.3, 1.95]} w={2.9} h={0.46} r={[-0.25, 0, 0]} />
     </Tap></group>)}</group>
 }
 let remembered = 0
@@ -92,7 +108,8 @@ export function Hub() {
     const n = PLACES.length, cur = ((idx.current % n) + n) % n; let df = i - cur; if (df > n / 2) df -= n; if (df < -n / 2) df += n
     idx.current += df; target.current = -idx.current * STEP; name()
     setWalk(df ? 'walk' : 'happy'); later(() => { setWalk('happy'); burst([0, 1.6, R + 2.4], 'star', 22) }, df ? 600 : 0)
-    void say(('s_' + PLACES[i].id) as Phrase); later(() => { useFam.getState().set({ ret: 'hub', adv: null }); go(PLACES[i].id) }, 1300)
+    const q = PLACES[i]; if (q.game) void sayText(GAMES.byId[q.id].title); else void say(('s_' + q.id) as Phrase)
+    later(() => { useFam.getState().set({ ret: 'hub', adv: null }); if (q.game) playGame({ id: q.id, who: 'mane' }, 'hub'); else go(q.id) }, 1300)
   }
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.code === 'ArrowRight') turn(1); if (e.code === 'ArrowLeft') turn(-1); if (e.code === 'Enter' || e.code === 'Space') pickP(((idx.current % PLACES.length) + PLACES.length) % PLACES.length) }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k) }, [])
   return <div style={{ position: 'absolute', inset: 0 }}

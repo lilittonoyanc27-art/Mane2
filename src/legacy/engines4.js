@@ -145,7 +145,73 @@
     next()
   }
 
-  Object.assign(ENG, { sounds, dots, teeth, letters })
+  /* ---------- Թաքնված կենդանիներ (выглядывают из кустиков — успей коснуться) ---------- */
+  const PEEK = [{ k: 'rabbit', e: '🐰' }, { k: 'cat', e: '🐱' }, { k: 'dog', e: '🐶' }, { k: 'frog', e: '🐸' }, { k: 'duck', e: '🐥' }, { k: 'pig', e: '🐷' }, { k: 'bear', e: '🐻' }]
+  function peek(api) {
+    const b = setup(api); b.style.background = 'linear-gradient(#cfeeff,#c9f0b0 60%)'
+    const target = 10; let got = 0, ended = false
+    const cnt = pill('👀 0 / ' + target); hud(api, cnt)
+    const grid = el('div', { style: { position: 'absolute', inset: '70px 14px 80px', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px', alignItems: 'end' } })
+    const holes = Array.from({ length: 6 }, (_, i) => {
+      const cell = el('div', { style: { position: 'relative', height: '100%', minHeight: '110px', overflow: 'hidden', borderRadius: '24px' } })
+      const pop = el('button', { style: { position: 'absolute', left: '50%', bottom: '-90px', transform: 'translateX(-50%)', fontSize: 'min(16vw,84px)', background: 'none', transition: 'bottom .25s' } })
+      const bush = el('div', { style: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '46%', fontSize: 'min(18vw,96px)', textAlign: 'center', lineHeight: 1, pointerEvents: 'none' } }, i % 3 === 1 ? '🪨' : '🌳')
+      cell.append(pop, bush); grid.append(cell)
+      const h = { pop, up: false, a: null }
+      pop.onclick = () => { if (!h.up || ended) return; h.up = false; G.animal(h.a.k); G.sfx('pop'); pop.textContent = '😄'; got++; cnt.textContent = '👀 ' + got + ' / ' + target
+        if (got <= 10) G.speak(NUM[got]); setTimeout(() => { pop.style.bottom = '-90px' }, 350)
+        if (got >= target) { ended = true; setTimeout(() => api.done({ stars: 3, text: 'Դու բոլորին գտար։ Պահմտոցի խաղի չեմպիոն ես։' }), 900) } }
+      return h
+    })
+    b.append(grid)
+    const speed = api.level === 'easy' ? 1700 : 1100
+    const t = setInterval(() => {
+      if (ended) return
+      const free = holes.filter(h => !h.up); if (!free.length) return
+      const h = pick(free); h.a = pick(PEEK); h.up = true; h.pop.textContent = h.a.e; h.pop.style.bottom = '30%'
+      setTimeout(() => { if (h.up) { h.up = false; h.pop.style.bottom = '-90px' } }, speed)
+    }, api.level === 'easy' ? 1200 : 800)
+    api.ctx.onCleanup(() => clearInterval(t))
+    instr(api, 'Կենդանիները թաքնվել են։ Սեղմի՛ր նրանց վրա, երբ դուրս նայեն։')
+  }
+
+  /* ---------- Գունավոր փուչիկներ (лопни шарики названного цвета) ---------- */
+  const PCOL = [{ c: '#ff5a6e', q: 'Պայթեցրո՛ւ կարմիր փուչիկները։' }, { c: '#ffd23f', q: 'Պայթեցրո՛ւ դեղին փուչիկները։' }, { c: '#4d9bff', q: 'Պայթեցրո՛ւ կապույտ փուչիկները։' }, { c: '#5cc96a', q: 'Պայթեցրո՛ւ կանաչ փուչիկները։' }, { c: '#b07cff', q: 'Պայթեցրո՛ւ մանուշակագույն փուչիկները։' }]
+  function colorpop(api) {
+    const b = setup(api); b.style.background = 'linear-gradient(#cfe9ff,#fbe3f2)'
+    const order = shuffle(PCOL).slice(0, 3); let ri_ = 0, need = 5, got = 0, ended = false
+    const cnt = pill(''); hud(api, cnt)
+    const objs = []
+    function round() {
+      if (ri_ >= order.length) { ended = true; return api.done({ stars: 3, text: 'Դու գիտես բոլոր գույները։ Ապրե՛ս։' }) }
+      got = 0; const R = order[ri_]
+      cnt.innerHTML = ''; cnt.append(el('span', { style: { display: 'inline-block', width: '20px', height: '20px', borderRadius: '50%', background: R.c, verticalAlign: 'middle', marginRight: '6px' } }), '0 / ' + need)
+      instr(api, R.q)
+    }
+    const spawn = setInterval(() => {
+      if (ended || objs.length > 9) return
+      const R = order[ri_]; if (!R) return
+      const c = Math.random() < .5 ? R.c : pick(PCOL).c, size = api.level === 'easy' ? 86 : 66
+      const n = el('div', { style: { position: 'absolute', width: size + 'px', height: size * 1.18 + 'px', borderRadius: '50% 50% 46% 46%', background: `radial-gradient(circle at 34% 28%,#fff9 0 12%,${c} 40%)`, boxShadow: 'inset -6px -8px 0 #0002', cursor: 'pointer' } })
+      const o = { n, c, x: Math.random() * Math.max(10, b.clientWidth - size - 20) + 10, y: b.clientHeight + 10, v: api.level === 'easy' ? 55 + Math.random() * 30 : 90 + Math.random() * 40 }
+      n.onpointerdown = e => { e.stopPropagation(); if (o.dead || ended) return
+        if (o.c === order[ri_].c) { o.dead = true; G.sfx('pop'); n.style.transition = 'transform .25s,opacity .25s'; n.style.transform = 'scale(1.6)'; n.style.opacity = '0'; got++
+          cnt.lastChild.textContent = got + ' / ' + need; if (got <= 10) G.speak(NUM[got])
+          if (got >= need) { G.sfx('win'); G.confetti(20); ri_++; setTimeout(round, 1200) } }
+        else { G.sfx('soft'); n.animate([{ transform: 'rotate(-12deg)' }, { transform: 'rotate(12deg)' }, { transform: 'none' }], { duration: 400 }) } }
+      b.append(n); objs.push(o)
+    }, 650)
+    let raf, last = performance.now()
+    const loop = t => { const dt = Math.min(50, t - last) / 1000; last = t
+      for (let i = objs.length - 1; i >= 0; i--) { const o = objs[i]; o.y -= o.v * dt; o.n.style.left = (o.x + Math.sin(o.y / 40) * 10) + 'px'; o.n.style.top = o.y + 'px'
+        if (o.y < -130 || o.dead) { setTimeout(() => o.n.remove(), 260); objs.splice(i, 1) } }
+      raf = requestAnimationFrame(loop) }
+    raf = requestAnimationFrame(loop)
+    api.ctx.onCleanup(() => { clearInterval(spawn); cancelAnimationFrame(raf) })
+    round()
+  }
+
+  Object.assign(ENG, { sounds, dots, teeth, letters, peek, colorpop })
   const NEW = [
     { id: 'm_sounds', who: 'mane', emoji: '🐮', title: 'Ո՞վ է այսպես խոսում', desc: 'Կենդանիների ձայներ', engine: 'sounds', cfg: {} },
     { id: 'm_dots', who: 'mane', emoji: '✏️', title: 'Միացրո՛ւ կետերը', desc: 'Հաշվում ենք և նկարում', engine: 'dots', cfg: {} },
@@ -160,5 +226,10 @@
       items: [['🕶️', 's'], ['👒', 's'], ['🩴', 's'], ['🩳', 's'], ['☂️', 'r'], ['🥾', 'r'], ['🧥', 'r'], ['🧣', 'w'], ['🧤', 'w'], ['🎿', 'w']].map(([e, key]) => ({ e, key })),
       count: { easy: 7, normal: 10, hard: 10 }, instr: 'Ի՞նչ ենք հագնում արևին, անձրևին և ձյունին։', hintWrong: 'Հը՛մ, սա այդ եղանակի համար չէ։', win: 'Հիմա պատրաստ ենք ցանկացած եղանակի։', bg: 'linear-gradient(#dff1ff,#fff7d6)' } },
   ]
+  NEW.push(
+    { id: 'm_peek', who: 'mane', emoji: '🐰', title: 'Թաքնված կենդանիներ', desc: 'Պահմտոցի', engine: 'peek', cfg: {} },
+    { id: 'm_colorpop', who: 'mane', emoji: '🎈', title: 'Գունավոր փուչիկներ', desc: 'Սովորում ենք գույները', engine: 'colorpop', cfg: {} },
+    { id: 'm_snowman', who: 'mane', emoji: '⛄', title: 'Ձնեմարդ կառուցենք', desc: 'Գնդեր, գլխարկ, գազար', engine: 'decorate', cfg: { scene: 'snowman', layers: { label: 'Ձնագնդեր (ներքևից վեր)', options: ['#ffffff', '#eef6ff', '#f3f0ff'], max: 3 },
+      stickers: ['🥕', '🎩', '🧣', '🧤', '👀', '😊', '⭐', '❄️', '🌲', '🐦', '🧹', '🎀'], min: 6, instr: 'Կառուցի՛ր ձնեմարդը երեք գնդից և զարդարի՛ր։', win: 'Ձնեմարդը ժպտում է քեզ։', photoTitle: 'Մանեի ձնեմարդը' } })
   NEW.forEach(g => { GAMES.L.push(g); GAMES.byId[g.id] = g })
 })()
